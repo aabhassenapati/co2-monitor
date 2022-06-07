@@ -27,7 +27,6 @@ void setup() {
   Serial.println("CCS811 test");
   if (!ccs.begin()) {
     Serial.println("Failed to start sensor! Please check your wiring.");
-    while (1);
   }
   if (!SD.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
@@ -38,7 +37,7 @@ void setup() {
   pinMode(A0, INPUT_PULLUP);                         // Pullup A0
 }
 void loop() {
-  File dataFile = SD.open("CO2_log.txt", FILE_WRITE);
+  File dataFile = SD.open("logco2.txt", FILE_WRITE);
   display.clearDisplay();
   display.setCursor(0, 0);            // Start at top-left corner
   display.setTextSize(1);             // Draw 2X-scale text
@@ -64,6 +63,20 @@ void loop() {
   display.print(":");
   display.print(rtc.getSeconds());
   display.display();
+  Serial.print("CO2@M: ");
+  Serial.println(mco2);
+  Serial.print("TIME: ");
+  Serial.print(rtc.getDay());
+  Serial.print("/");
+  Serial.print(rtc.getMonth());
+  Serial.print("/");
+  Serial.print(rtc.getYear());
+  Serial.print(" ");
+  Serial.print(rtc.getHours());
+  Serial.print(":");
+  Serial.print(rtc.getMinutes());
+  Serial.print(":");
+  Serial.print(rtc.getSeconds());
   if (dataFile) {
     dataFile.print("CO2@C: ");
     dataFile.println(cco2);
@@ -84,4 +97,5 @@ void loop() {
     dataFile.println("-----------");
     dataFile.close();
   }
+  delay(1000);
 }
