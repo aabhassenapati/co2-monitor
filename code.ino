@@ -4,7 +4,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "Adafruit_CCS811.h"
-#include <RTCZero.h>
+#define PCF8563address 0x51
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 // Declaration for SSD1306 display connected using software SPI (default case):
@@ -14,13 +14,14 @@
 #define OLED_CS    12
 #define OLED_RESET 13
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, OLED_MOSI,
-OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+                         OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+byte second, minute, hour, dayOfWeek, dayOfMonth, month, year;
+String days[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 Adafruit_CCS811 ccs;
-RTCZero rtc;
 const int chipSelect = 4;
 void setup() {
   Serial.begin(9600);
-  rtc.begin();
+
   if (!display.begin(SSD1306_SWITCHCAPVCC)) {
     Serial.println(F("SSD1306 allocation failed"));
   }
@@ -38,9 +39,10 @@ void setup() {
 }
 void loop() {
   File dataFile = SD.open("logco2.txt", FILE_WRITE);
+  readPCF8563();
   display.clearDisplay();
   display.setCursor(0, 0);            // Start at top-left corner
-  display.setTextSize(1);             // Draw 2X-scale text
+  display.setTextSize(1.5);             // Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);
   display.print("CO2@C: ");
   ccs.readData();
@@ -50,52 +52,105 @@ void loop() {
   mco2 = ((6.4995 * mco2) - 590.53); // format; y=mx+c
   display.print("CO2@M: ");
   display.println(mco2);
+  display.print("DATE: ");
+  display.print(dayOfMonth, DEC);
+  display.print("/");
+  display.print(month, DEC);
+  display.print("/20");
+  display.print(year, DEC);
+  display.println();
   display.print("TIME: ");
-  display.print(rtc.getDay());
-  display.print("/");
-  display.print(rtc.getMonth());
-  display.print("/");
-  display.print(rtc.getYear());
-  display.print(" ");
-  display.print(rtc.getHours());
+  display.print(hour, DEC);
   display.print(":");
-  display.print(rtc.getMinutes());
+  if (minute < 10)
+  {
+    display.print("0");
+  }
+  display.print(minute, DEC);
   display.print(":");
-  display.print(rtc.getSeconds());
+  if (second < 10)
+  {
+    display.print("0");
+  }
+  display.println(second, DEC);
   display.display();
+  Serial.print("CO2@C: ");
+  Serial.println(cco2);
   Serial.print("CO2@M: ");
   Serial.println(mco2);
+  Serial.print("DATE: ");
+  Serial.print(dayOfMonth, DEC);
+  Serial.print("/");
+  Serial.print(month, DEC);
+  Serial.print("/20");
+  Serial.print(year, DEC);
+  Serial.println();
   Serial.print("TIME: ");
-  Serial.print(rtc.getDay());
-  Serial.print("/");
-  Serial.print(rtc.getMonth());
-  Serial.print("/");
-  Serial.print(rtc.getYear());
-  Serial.print(" ");
-  Serial.print(rtc.getHours());
+  //Serial.print(days[dayOfWeek]);
+  // Serial.print(" ");
+  Serial.print(hour, DEC);
   Serial.print(":");
-  Serial.print(rtc.getMinutes());
+  if (minute < 10)
+  {
+    Serial.print("0");
+  }
+  Serial.print(minute, DEC);
   Serial.print(":");
-  Serial.print(rtc.getSeconds());
+  if (second < 10)
+  {
+    Serial.print("0");
+  }
+  Serial.println(second, DEC);
   if (dataFile) {
     dataFile.print("CO2@C: ");
     dataFile.println(cco2);
     dataFile.print("CO2@M: ");
     dataFile.println(mco2);
+    dataFile.print("DATE: ");
+    dataFile.print(dayOfMonth, DEC);
+    dataFile.print("/");
+    dataFile.print(month, DEC);
+    dataFile.print("/20");
+    dataFile.print(year, DEC);
+    dataFile.println();
     dataFile.print("TIME: ");
-    dataFile.print(rtc.getDay());
-    dataFile.print("/");
-    dataFile.print(rtc.getMonth());
-    dataFile.print("/");
-    dataFile.print(rtc.getYear());
-    dataFile.print(" ");
-    dataFile.print(rtc.getHours());
+    dataFile.print(hour, DEC);
     dataFile.print(":");
-    dataFile.print(rtc.getMinutes());
+    if (minute < 10)
+    {
+      dataFile.print("0");
+    }
+    dataFile.print(minute, DEC);
     dataFile.print(":");
-    dataFile.print(rtc.getSeconds());
+    if (second < 10)
+    {
+      dataFile.print("0");
+    }
+    dataFile.println(second, DEC);
     dataFile.println("-----------");
     dataFile.close();
   }
   delay(1000);
+}
+byte bcdToDec(byte value)
+{
+  return ((value / 16) * 10 + value % 16);
+}
+byte decToBcd(byte value) {
+  return (value / 10 * 16 + value % 10);
+}
+void readPCF8563()
+// this gets the time and date from the PCF8563
+{
+  Wire.beginTransmission(PCF8563address);
+  Wire.write(0x02);
+  Wire.endTransmission();
+  Wire.requestFrom(PCF8563address, 7);
+  second     = bcdToDec(Wire.read() & B01111111); // remove VL error bit
+  minute     = bcdToDec(Wire.read() & B01111111); // remove unwanted bits from MSB
+  hour       = bcdToDec(Wire.read() & B00111111);
+  dayOfMonth = bcdToDec(Wire.read() & B00111111);
+  dayOfWeek  = bcdToDec(Wire.read() & B00000111);
+  month      = bcdToDec(Wire.read() & B00011111);  // remove century bit, 1999 is over
+  year       = bcdToDec(Wire.read());
 }
