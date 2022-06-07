@@ -38,11 +38,11 @@ void setup() {
   pinMode(A0, INPUT_PULLUP);                         // Pullup A0
 }
 void loop() {
-  File dataFile = SD.open("logco2.txt", FILE_WRITE);
+  File dataFile = SD.open("co2_logs.txt", FILE_WRITE);
   readPCF8563();
   display.clearDisplay();
   display.setCursor(0, 0);            // Start at top-left corner
-  display.setTextSize(1.5);             // Draw 2X-scale text
+  display.setTextSize(1);             // Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);
   display.print("CO2@C: ");
   ccs.readData();
