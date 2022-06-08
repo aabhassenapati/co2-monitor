@@ -36,6 +36,15 @@ void setup() {
   // Clear the buffer
   display.clearDisplay();
   pinMode(A0, INPUT_PULLUP);                         // Pullup A0
+Serial.print("CO2@C: ");
+  Serial.print("\t");
+Serial.print("CO2@M: ");
+  Serial.print("\t");
+Serial.print("DATE: ");
+  Serial.print("\t");
+Serial.print("TIME: ");
+  Serial.print("\t");
+     Serial.println();
 }
 void loop() {
   File dataFile = SD.open("co2_logs.txt", FILE_WRITE);
@@ -74,18 +83,20 @@ void loop() {
   }
   display.println(second, DEC);
   display.display();
-  Serial.print("CO2@C: ");
-  Serial.println(cco2);
-  Serial.print("CO2@M: ");
-  Serial.println(mco2);
-  Serial.print("DATE: ");
+ // Serial.print("CO2@C: ");
+  Serial.print(cco2);
+    Serial.print("\t");
+ // Serial.print("CO2@M: ");
+  Serial.print(mco2);
+    Serial.print("\t");
+ // Serial.print("DATE: ");
   Serial.print(dayOfMonth, DEC);
   Serial.print("/");
   Serial.print(month, DEC);
   Serial.print("/20");
   Serial.print(year, DEC);
-  Serial.println();
-  Serial.print("TIME: ");
+  Serial.print("\t");
+ // Serial.print("TIME: ");
   //Serial.print(days[dayOfWeek]);
   // Serial.print(" ");
   Serial.print(hour, DEC);
@@ -100,7 +111,9 @@ void loop() {
   {
     Serial.print("0");
   }
-  Serial.println(second, DEC);
+  Serial.print(second, DEC);
+  Serial.print("\t");
+   Serial.println();
   if (dataFile) {
     dataFile.print("CO2@C: ");
     dataFile.println(cco2);
