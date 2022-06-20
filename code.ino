@@ -11,11 +11,11 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 // Declaration for SSD1306 display connected using software SPI (default case):
-#define OLED_MOSI   9
-#define OLED_CLK   5
-#define OLED_DC    6
-#define OLED_CS    12
-#define OLED_RESET 13
+#define OLED_MOSI  A2
+#define OLED_CLK   A1
+#define OLED_DC    A4
+#define OLED_CS    A5
+#define OLED_RESET A3
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, OLED_MOSI,
                          OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
 byte second, minute, hour, dayOfWeek, dayOfMonth, month, year;
@@ -37,11 +37,8 @@ void setup() {
     Serial2.begin(9600);
      pinPeripheral(10, PIO_SERCOM);
   pinPeripheral(11, PIO_SERCOM);
-    pinMode(13, OUTPUT);
-  digitalWrite( 13, HIGH );
-  delay(1000);
-  digitalWrite( 13, LOW );
-  delay(500);
+    pinMode(A0, OUTPUT);
+  digitalWrite( A0, HIGH );
   readCO2(1);
   delay(1000);
   if (!display.begin(SSD1306_SWITCHCAPVCC)) {
@@ -57,7 +54,6 @@ void setup() {
   display.display();
   // Clear the buffer
   display.clearDisplay();
-  pinMode(A0, INPUT_PULLUP);                         // Pullup A0
 Serial.print("CO2@C: ");
   Serial.print("\t");
 Serial.print("CO2@M: ");
@@ -70,7 +66,7 @@ Serial.print("TIME: ");
 
 }
 void loop() {
-  File dataFile = SD.open("co2_logs.txt", FILE_WRITE);
+  File dataFile = SD.open("logs.txt", FILE_WRITE);
  readPCF8563();
   display.clearDisplay();
   display.setCursor(0, 0);            // Start at top-left corner
@@ -138,18 +134,10 @@ void loop() {
   Serial.print("\t");
    Serial.println();
   if (dataFile) {
-    dataFile.print("CO2@C: ");
-    dataFile.println(cco2);
-    dataFile.print("CO2@M: ");
-    dataFile.println(ppm);
-    dataFile.print("DATE: ");
-    dataFile.print(dayOfMonth, DEC);
-    dataFile.print("/");
-    dataFile.print(month, DEC);
-    dataFile.print("/20");
-    dataFile.print(year, DEC);
-    dataFile.println();
-    dataFile.print("TIME: ");
+    dataFile.print(cco2);
+    dataFile.print(",");
+    dataFile.print(ppm);
+    dataFile.print(",");
     dataFile.print(hour, DEC);
     dataFile.print(":");
     if (minute < 10)
@@ -162,8 +150,13 @@ void loop() {
     {
       dataFile.print("0");
     }
-    dataFile.println(second, DEC);
-    dataFile.println("-----------");
+    dataFile.print(second, DEC);
+    dataFile.print(" ");
+    dataFile.print(dayOfMonth, DEC);
+    dataFile.print("/");
+    dataFile.print(month, DEC);
+    dataFile.print("/20");
+    dataFile.println(year, DEC);
     dataFile.close();
   }
   delay(1000);
