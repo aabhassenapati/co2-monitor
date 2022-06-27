@@ -1,4 +1,4 @@
-The Data in File can be found in following format:
+The Data in File can be found in following format in the CSV File:
 
 CCS811 CO2 Reading, MHZ19 CO2 Reading, Date Time
 
