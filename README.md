@@ -29,4 +29,10 @@ List of Hardware used:
 
 -> Switch (SPDT)
 
+
 -> SD Card
+
+![Schematic-CO2 Monitor](https://user-images.githubusercontent.com/38909361/176010381-a46d0bc7-0c23-46dc-9111-6c3fe8fe2390.PNG)
+
+![Pin Mapping](https://user-images.githubusercontent.com/38909361/176010342-ca9216f6-84e3-41a1-a2e2-bf4835a9372c.PNG)
+
