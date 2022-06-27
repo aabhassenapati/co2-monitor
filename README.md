@@ -5,7 +5,7 @@ Repository for ongoing "SpiroMask" project at IIT Gandinagar to make accessible 
 
 Link to project summary presentation- https://to.aabhass.in/iitgn-report
 
--> The Schematic Folder contains a fritzing file (.fzz) to impport the circuit for PCB design.
+-> The Schematic Folder contains a fritzing file (.fzz) to import the circuit for PCB design.
 
 -> The Image folder contains some images of the CO2 Monitor device.
 
