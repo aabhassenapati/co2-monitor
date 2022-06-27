@@ -1,4 +1,4 @@
-Graphs of CO2 Monitor values in different scenarios
+Graphs of CO2 Monitor values in different scenarios (We used Ardu Sprweadsheets tools to save data as csv using seraial monitor and then imported in google sheets to plot the same)
 
 ![CS811 CO2 log](https://user-images.githubusercontent.com/38909361/175979367-801ce3c9-6e23-4097-abbb-1a5d37a09120.png)
 
